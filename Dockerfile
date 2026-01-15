@@ -2,12 +2,10 @@ FROM kong:2.8.1
 
 # Install gettext for envsubst (Alpine uses apk)
 USER root
-RUN apk add --no-cache gettext
+RUN apk add --no-cache gettext bash
 
-# Copy kong configuration template and entrypoint
+# Copy kong configuration template
 COPY kong.yml /var/lib/kong/kong.yml.template
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
 
 # Set Kong to run in DB-less mode with the declarative config
 ENV KONG_DATABASE=off \
@@ -24,6 +22,6 @@ EXPOSE 8000 8443
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD kong health || exit 1
 
-# Use our custom entrypoint
+# Use shell form to substitute env vars and start Kong
 USER kong
-ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD /bin/sh -c 'envsubst "\${SUPABASE_ANON_KEY} \${SUPABASE_SERVICE_KEY} \${DASHBOARD_USERNAME} \${DASHBOARD_PASSWORD}" < /var/lib/kong/kong.yml.template > /var/lib/kong/kong.yml && kong docker-start'
