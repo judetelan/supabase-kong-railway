@@ -4,15 +4,15 @@ FROM kong:2.8.1
 USER root
 RUN apk add --no-cache gettext bash
 
-# Copy kong configuration template
-COPY kong.yml /var/lib/kong/kong.yml.template
+# Copy kong configuration template to home directory
+COPY kong.yml /home/kong/kong.yml.template
 
 # Set proper permissions for kong user
-RUN chown -R kong:kong /var/lib/kong
+RUN chown -R kong:kong /home/kong
 
 # Set Kong to run in DB-less mode with the declarative config
 ENV KONG_DATABASE=off \
-    KONG_DECLARATIVE_CONFIG=/var/lib/kong/kong.yml \
+    KONG_DECLARATIVE_CONFIG=/home/kong/kong.yml \
     KONG_DNS_ORDER=LAST,A,CNAME \
     KONG_PLUGINS=request-transformer,cors,key-auth,acl,basic-auth,request-termination \
     KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=160k \
@@ -27,4 +27,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 
 # Use shell form to substitute env vars and start Kong
 USER kong
-CMD /bin/sh -c 'envsubst "\${SUPABASE_ANON_KEY} \${SUPABASE_SERVICE_KEY} \${DASHBOARD_USERNAME} \${DASHBOARD_PASSWORD}" < /var/lib/kong/kong.yml.template > /var/lib/kong/kong.yml && kong start'
+CMD /bin/sh -c 'envsubst "\${SUPABASE_ANON_KEY} \${SUPABASE_SERVICE_KEY} \${DASHBOARD_USERNAME} \${DASHBOARD_PASSWORD}" < /home/kong/kong.yml.template > /home/kong/kong.yml && kong start'
