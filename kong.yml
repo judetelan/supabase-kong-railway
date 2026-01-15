@@ -34,6 +34,20 @@ basicauth_credentials:
 ### API Routes
 ###
 services:
+  ## Health check (returns 200 for Railway healthcheck)
+  - name: health-check
+    url: http://localhost:8000
+    routes:
+      - name: health-check-route
+        paths:
+          - /health
+        strip_path: false
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          message: healthy
+
   ## Open Auth routes
   - name: auth-v1-open
     url: http://$AUTH_HOST:9999/verify
