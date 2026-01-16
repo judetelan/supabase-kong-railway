@@ -34,20 +34,6 @@ basicauth_credentials:
 ### API Routes
 ###
 services:
-  ## Health check (returns 200 for Railway healthcheck)
-  - name: health-check
-    url: http://localhost:8000
-    routes:
-      - name: health-check-route
-        paths:
-          - /health
-        strip_path: false
-    plugins:
-      - name: request-termination
-        config:
-          status_code: 200
-          message: healthy
-
   ## Open Auth routes
   - name: auth-v1-open
     url: http://$AUTH_HOST:9999/verify
@@ -199,6 +185,18 @@ services:
     plugins:
       - name: cors
 
+  # ## Edge Functions routes
+  # - name: functions-v1
+  #   _comment: 'Edge Functions: /functions/v1/* -> http://functions:9000/*'
+  #   url: http://functions:9000/
+  #   routes:
+  #     - name: functions-v1-all
+  #       strip_path: true
+  #       paths:
+  #         - /functions/v1/
+  #   plugins:
+  #     - name: cors
+
   ## Analytics routes
   - name: analytics-v1
     _comment: 'Analytics: /analytics/v1/* -> http://analytics:4000/*'
@@ -239,3 +237,6 @@ services:
           - /
     plugins:
       - name: cors
+      - name: basic-auth
+        config:
+          hide_credentials: true
