@@ -31,12 +31,12 @@ basicauth_credentials:
     password: $DASHBOARD_PASSWORD
 
 ###
-### API Routes
+### API Routes - Using Public HTTPS URLs
 ###
 services:
   ## Open Auth routes
   - name: auth-v1-open
-    url: http://$AUTH_HOST:9999/verify
+    url: https://$AUTH_PUBLIC_URL/verify
     routes:
       - name: auth-v1-open
         strip_path: true
@@ -45,7 +45,7 @@ services:
     plugins:
       - name: cors
   - name: auth-v1-open-callback
-    url: http://$AUTH_HOST:9999/callback
+    url: https://$AUTH_PUBLIC_URL/callback
     routes:
       - name: auth-v1-open-callback
         strip_path: true
@@ -54,7 +54,7 @@ services:
     plugins:
       - name: cors
   - name: auth-v1-open-authorize
-    url: http://$AUTH_HOST:9999/authorize
+    url: https://$AUTH_PUBLIC_URL/authorize
     routes:
       - name: auth-v1-open-authorize
         strip_path: true
@@ -65,8 +65,8 @@ services:
 
   ## Secure Auth routes
   - name: auth-v1
-    _comment: 'GoTrue: /auth/v1/* -> http://auth:9999/*'
-    url: http://$AUTH_HOST:9999/
+    _comment: 'GoTrue: /auth/v1/* -> https://auth/*'
+    url: https://$AUTH_PUBLIC_URL/
     routes:
       - name: auth-v1-all
         strip_path: true
@@ -86,8 +86,8 @@ services:
 
   ## Secure REST routes
   - name: rest-v1
-    _comment: 'PostgREST: /rest/v1/* -> http://rest:3000/*'
-    url: http://$REST_HOST:3000/
+    _comment: 'PostgREST: /rest/v1/* -> https://rest/*'
+    url: https://$REST_PUBLIC_URL/
     routes:
       - name: rest-v1-all
         strip_path: true
@@ -107,8 +107,8 @@ services:
 
   ## Secure GraphQL routes
   - name: graphql-v1
-    _comment: 'PostgREST: /graphql/v1/* -> http://rest:3000/rpc/graphql'
-    url: http://$REST_HOST:3000/rpc/graphql
+    _comment: 'PostgREST: /graphql/v1/* -> https://rest/rpc/graphql'
+    url: https://$REST_PUBLIC_URL/rpc/graphql
     routes:
       - name: graphql-v1-all
         strip_path: true
@@ -133,8 +133,8 @@ services:
 
   ## Secure Realtime routes
   - name: realtime-v1-ws
-    _comment: 'Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*'
-    url: http://$REALTIME_HOST:4000/socket
+    _comment: 'Realtime: /realtime/v1/* -> wss://realtime/socket/*'
+    url: https://$REALTIME_PUBLIC_URL/socket
     protocol: ws
     routes:
       - name: realtime-v1-ws
@@ -153,8 +153,8 @@ services:
             - admin
             - anon
   - name: realtime-v1-rest
-    _comment: 'Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*'
-    url: http://$REALTIME_HOST:4000/api
+    _comment: 'Realtime: /realtime/v1/api -> https://realtime/api'
+    url: https://$REALTIME_PUBLIC_URL/api
     protocol: http
     routes:
       - name: realtime-v1-rest
@@ -175,8 +175,8 @@ services:
 
   ## Storage routes: the storage server manages its own auth
   - name: storage-v1
-    _comment: 'Storage: /storage/v1/* -> http://storage:5000/*'
-    url: http://$STORAGE_HOST:5000/
+    _comment: 'Storage: /storage/v1/* -> https://storage/*'
+    url: https://$STORAGE_PUBLIC_URL/
     routes:
       - name: storage-v1-all
         strip_path: true
@@ -185,22 +185,10 @@ services:
     plugins:
       - name: cors
 
-  # ## Edge Functions routes
-  # - name: functions-v1
-  #   _comment: 'Edge Functions: /functions/v1/* -> http://functions:9000/*'
-  #   url: http://functions:9000/
-  #   routes:
-  #     - name: functions-v1-all
-  #       strip_path: true
-  #       paths:
-  #         - /functions/v1/
-  #   plugins:
-  #     - name: cors
-
   ## Analytics routes
   - name: analytics-v1
-    _comment: 'Analytics: /analytics/v1/* -> http://analytics:4000/*'
-    url: http://$ANALYTICS_HOST:4000/
+    _comment: 'Analytics: /analytics/v1/* -> https://meta/*'
+    url: https://$META_PUBLIC_URL/
     routes:
       - name: analytics-v1-all
         strip_path: true
@@ -209,8 +197,8 @@ services:
 
   ## Secure Database routes
   - name: meta
-    _comment: 'pg-meta: /pg/* -> http://meta:8080/*'
-    url: http://$META_HOST:8080/
+    _comment: 'pg-meta: /pg/* -> https://meta/*'
+    url: https://$META_PUBLIC_URL/
     routes:
       - name: meta-all
         strip_path: true
@@ -228,8 +216,8 @@ services:
 
   ## Protected Dashboard - catch all remaining routes
   - name: dashboard
-    _comment: 'Studio: /* -> http://studio:3000/*'
-    url: http://$STUDIO_HOST:3000/
+    _comment: 'Studio: /* -> https://studio/*'
+    url: https://$STUDIO_PUBLIC_URL/
     routes:
       - name: dashboard-all
         strip_path: true

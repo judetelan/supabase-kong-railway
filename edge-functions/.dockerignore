@@ -1,0 +1,6 @@
+# Ignore everything not needed
+.railway
+.railwayignore
+.dockerignore
+*.md
+*.txt

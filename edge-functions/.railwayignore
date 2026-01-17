@@ -1,0 +1,6 @@
+# Ignore everything from parent directories
+../*
+../.*
+node_modules
+.git
+*.log

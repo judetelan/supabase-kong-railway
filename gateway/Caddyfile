@@ -1,0 +1,94 @@
+{
+    auto_https off
+    admin off
+}
+
+:{$PORT:8080} {
+    # Health check
+    respond /health "OK" 200
+
+    # CORS headers
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        Access-Control-Allow-Headers "Authorization, Content-Type, apikey, x-client-info"
+    }
+
+    # OPTIONS preflight
+    @options method OPTIONS
+    respond @options "" 204
+
+    # Auth routes - match anything starting with /auth/v1
+    route /auth/v1* {
+        uri strip_prefix /auth/v1
+        reverse_proxy supabase-auth-production-c390.up.railway.app:443 {
+            header_up Host supabase-auth-production-c390.up.railway.app
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    # REST routes
+    route /rest/v1* {
+        uri strip_prefix /rest/v1
+        reverse_proxy supabase-rest-production.up.railway.app:443 {
+            header_up Host supabase-rest-production.up.railway.app
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    # Storage routes
+    route /storage/v1* {
+        uri strip_prefix /storage/v1
+        reverse_proxy supabase-storage-production-cfd8.up.railway.app:443 {
+            header_up Host supabase-storage-production-cfd8.up.railway.app
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    # Edge Functions routes
+    route /functions/v1* {
+        reverse_proxy supabase-edge-functions-production.up.railway.app:443 {
+            header_up Host supabase-edge-functions-production.up.railway.app
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    # Meta/pg routes
+    route /pg* {
+        uri strip_prefix /pg
+        reverse_proxy supabase-meta-production.up.railway.app:443 {
+            header_up Host supabase-meta-production.up.railway.app
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    # Realtime routes
+    route /realtime/v1* {
+        uri strip_prefix /realtime/v1
+        reverse_proxy supabase-realtime-production-8f0e.up.railway.app:443 {
+            header_up Host supabase-realtime-production-8f0e.up.railway.app
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    # Default response
+    respond `{"service":"supabase-gateway","status":"ok","endpoints":["/auth/v1","/rest/v1","/storage/v1","/functions/v1","/pg","/realtime/v1"]}` 200
+}
