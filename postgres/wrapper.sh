@@ -3,6 +3,17 @@
 # exit as soon as any of these commands fail, this prevents starting a database without certificates
 set -e
 
+# Fix permissions for Railway volume mount
+# This runs as root before switching to postgres user
+if [ "$(id -u)" = '0' ]; then
+    echo "Running as root - setting up directory permissions..."
+    mkdir -p /var/lib/postgresql/data
+    chown -R postgres:postgres /var/lib/postgresql
+    chmod 700 /var/lib/postgresql/data
+    echo "Directory permissions set, restarting as postgres user..."
+    exec gosu postgres "$0" "$@"
+fi
+
 # Make sure there is a PGDATA variable available
 if [ -z "$PGDATA" ]; then
   echo "Missing PGDATA variable"

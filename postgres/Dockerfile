@@ -1,5 +1,8 @@
 FROM supabase/postgres:15.14.1.071
 
+# Ensure we run as root initially to set up permissions
+USER root
+
 ADD ./realtime.sql /docker-entrypoint-initdb.d/migrations/99-realtime.sql
 ADD ./webhooks.sql /docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql
 ADD ./roles.sql /docker-entrypoint-initdb.d/init-scripts/99-roles.sql
