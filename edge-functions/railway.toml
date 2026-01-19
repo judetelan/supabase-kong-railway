@@ -1,6 +1,7 @@
 [build]
 builder = "dockerfile"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "./Dockerfile"
+watchPatterns = ["functions/**/*.ts", "Dockerfile"]
 
 [deploy]
 healthcheckPath = "/health"
