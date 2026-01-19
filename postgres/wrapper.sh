@@ -35,22 +35,24 @@ unset PGPORT
 sed -i -e 's/data_directory = '\''\/var\/lib\/postgresql\/data'\''/data_directory = '\''\/var\/lib\/postgresql\/data\/pgdata'\''/g' /etc/postgresql/postgresql.conf
 
 # https://github.com/supabase/postgres/blob/c45336c611971037c2cc9fa21045870d225f80d5/Dockerfile-16
-if [[ ! -e "/var/lib/postgresql/data/custom" ]]; then
-  mkdir -p /var/lib/postgresql/data/custom
-  chown postgres:postgres /var/lib/postgresql/data/custom
+# Create custom config directory structure
+mkdir -p /var/lib/postgresql/data/custom/conf.d
+chown -R postgres:postgres /var/lib/postgresql/data/custom
+
+# Create required config files if they don't exist
+if [[ ! -f "/var/lib/postgresql/data/custom/supautils.conf" ]]; then
+  touch /var/lib/postgresql/data/custom/supautils.conf
+  chown postgres:postgres /var/lib/postgresql/data/custom/supautils.conf
 fi
-# If custom directory isnt "mounted", copy any changed configs and "mount" it
-# Only do this if /etc/postgresql-custom exists and is not already a symlink
+
+# Setup /etc/postgresql-custom symlink
 if [[ -d "/etc/postgresql-custom" && ! -L "/etc/postgresql-custom" ]]; then
   if ls /etc/postgresql-custom/* 1> /dev/null 2>&1; then
     cp -arf /etc/postgresql-custom/* /var/lib/postgresql/data/custom/ 2>/dev/null || true
   fi
   rm -rf /etc/postgresql-custom 2>/dev/null || true
-  ln -sf /var/lib/postgresql/data/custom /etc/postgresql-custom 2>/dev/null || true
-elif [[ ! -e "/etc/postgresql-custom" ]]; then
-  # Create symlink if it doesn't exist at all
-  ln -sf /var/lib/postgresql/data/custom /etc/postgresql-custom 2>/dev/null || true
 fi
+ln -sf /var/lib/postgresql/data/custom /etc/postgresql-custom 2>/dev/null || true
 
 # Call the entrypoint script with the
 # appropriate PGHOST & PGPORT and redirect
