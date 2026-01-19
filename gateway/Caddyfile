@@ -17,10 +17,10 @@
     }
 
     # Studio routes - Protected with Basic Auth
-    # Set STUDIO_USER and STUDIO_PASSWORD environment variables
+    # Username: jude | Password: 143668
     route /studio* {
         basic_auth {
-            {$STUDIO_USER:admin} {$STUDIO_PASSWORD_HASH}
+            jude $2b$14$koB6w9O8gLnnREfMdnRe0uHEcfWtMf2M9jspuz/ruIUfauyAOB9Uy
         }
         reverse_proxy supabase-studio-production-a7b2.up.railway.app:443 {
             header_up Host supabase-studio-production-a7b2.up.railway.app
