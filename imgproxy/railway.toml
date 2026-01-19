@@ -1,2 +1,8 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./Dockerfile"
+
 [deploy]
 sleepApplication = true
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
