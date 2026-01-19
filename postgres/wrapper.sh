@@ -40,10 +40,16 @@ if [[ ! -e "/var/lib/postgresql/data/custom" ]]; then
   chown postgres:postgres /var/lib/postgresql/data/custom
 fi
 # If custom directory isnt "mounted", copy any changed configs and "mount" it
-if ! [[ -L "/etc/postgresql-custom" && -d "/var/lib/postgresql/data/custom" ]]; then
-  yes | cp -arf /etc/postgresql-custom/* /var/lib/postgresql/data/custom
-  rm -rf /etc/postgresql-custom
-  ln -s /var/lib/postgresql/data/custom /etc/postgresql-custom
+# Only do this if /etc/postgresql-custom exists and is not already a symlink
+if [[ -d "/etc/postgresql-custom" && ! -L "/etc/postgresql-custom" ]]; then
+  if ls /etc/postgresql-custom/* 1> /dev/null 2>&1; then
+    cp -arf /etc/postgresql-custom/* /var/lib/postgresql/data/custom/ 2>/dev/null || true
+  fi
+  rm -rf /etc/postgresql-custom 2>/dev/null || true
+  ln -sf /var/lib/postgresql/data/custom /etc/postgresql-custom 2>/dev/null || true
+elif [[ ! -e "/etc/postgresql-custom" ]]; then
+  # Create symlink if it doesn't exist at all
+  ln -sf /var/lib/postgresql/data/custom /etc/postgresql-custom 2>/dev/null || true
 fi
 
 # Call the entrypoint script with the
