@@ -4,14 +4,31 @@
 }
 
 :{$PORT:8080} {
-    # Health check
+    # Health check (no auth required)
     respond /health "OK" 200
 
-    # CORS headers
+    # CORS headers - Use environment variable for allowed origins
+    # Set CORS_ORIGIN to your frontend domain, e.g., "https://myapp.com"
+    # Use "*" only for development
     header {
-        Access-Control-Allow-Origin *
+        Access-Control-Allow-Origin {$CORS_ORIGIN:*}
         Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
         Access-Control-Allow-Headers "Authorization, Content-Type, apikey, x-client-info"
+    }
+
+    # Studio routes - Protected with Basic Auth
+    # Set STUDIO_USER and STUDIO_PASSWORD environment variables
+    route /studio* {
+        basic_auth {
+            {$STUDIO_USER:admin} {$STUDIO_PASSWORD_HASH}
+        }
+        reverse_proxy supabase-studio-production-a7b2.up.railway.app:443 {
+            header_up Host supabase-studio-production-a7b2.up.railway.app
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
     }
 
     # OPTIONS preflight
